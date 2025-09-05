@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop_pass
+      POSTGRES_DB: shopsphere
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./auth-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+  auth-service:
+    build: ./auth-service
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgres://shop:shop_pass@postgres:5432/shopsphere
+      - JWT_SECRET=change_me
+    ports:
+      - "4000:4000"
+    # volumes:
+    #   - ./auth-service:/usr/src/app
+
+volumes:
+  pgdata:
