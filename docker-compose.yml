@@ -10,6 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./auth-service/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./catalog-service/init-catalog.sql:/docker-entrypoint-initdb.d/init-catalog.sql:ro
 
   auth-service:
     build: ./auth-service
@@ -20,8 +21,18 @@ services:
       - JWT_SECRET=change_me
     ports:
       - "4000:4000"
-    # volumes:
-    #   - ./auth-service:/usr/src/app
+
+  catalog-service:
+    build: ./catalog-service
+    depends_on:
+      - postgres
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=shopsphere
+      - POSTGRES_USER=shop
+      - POSTGRES_PASSWORD=shop_pass
+    ports:
+      - "5001:5000"   # host:container (host 5001 → container 5000)
 
 volumes:
   pgdata:
